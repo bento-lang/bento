@@ -1,49 +1,76 @@
-#[derive(Debug, Clone, PartialEq)]
-pub struct Position {
-    pub(crate) pos: usize,
-    pub(crate) line: u32,
-    pub(crate) col: u32
-}
+use logos::Logos;
 
-impl Position {
-    pub fn new(pos: usize, line: u32, col: u32) -> Position {
-        Position {
-            pos,
-            line,
-            col
-        }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum TokenType {
-    If, Then, Else, And, Or, Not, While, Match,
+#[derive(Logos, Debug, PartialEq)]
+#[logos(skip r"[ \t\n\f]+")] // Ignore this regex pattern between tokens
+pub enum Token {
+    #[token("if")]
+    If,
+    #[token("then")]
+    Then,
+    #[token("else")]
+    Else,
+    #[token("and")]
+    And,
+    #[token("or")]
+    Or,
+    #[token("not")]
+    Not,
+    #[token("while")]
+    While,
+    #[token("match")]
+    Match,
     
-    Assign, Colon, Comma, Pipe, LParen, RParen, LBrace, RBrace, Dot,
-    Plus, Minus, Star, Slash, Percent, Equality, NotEqual, LessThan, GreaterThan, LessThanEqual, GreaterThanEqual,
+    #[token(":=")]
+    Assign,
+    #[token(":")]
+    Colon,
+    #[token(",")]
+    Comma,
+    #[token("|")]
+    Pipe,
+    #[token("(")]
+    LParen,
+    #[token(")")]
+    RParen,
+    #[token("{")]
+    LBrace,
+    #[token("}")]
+    RBrace,
+    #[token(".")]
+    Dot,
+    #[token("+")]
+    Plus,
+    #[token("-")]
+    Minus,
+    #[token("*")]
+    Star,
+    #[token("/")]
+    Slash,
+    #[token("%")]
+    Percent,
+    #[token("==")]
+    Equality,
+    #[token("!=")]
+    NotEqual,
+    #[token("<")]
+    LessThan,
+    #[token(">")]
+    GreaterThan,
+    #[token("<=")]
+    LessThanEqual,
+    #[token(">=")]
+    GreaterThanEqual,
     
+    #[regex("[a-zA-Z_][a-zA-Z0-9_]*", |lex| lex.slice().to_string())]
     Identifier(String),
-    Number(f64),
+    #[regex(r#""[^"]*"|'[^']*'"#, |lex| lex.slice().to_string())]
     StringLiteral(String),
-    Boolean(bool),
+    #[regex(r#"(?:\d[\d_]*)(?:\.?(\d|_)*)"#, |lex| lex.slice().replace("_", "").parse::<f64>().unwrap())]
+    Number(f64),
+    #[token("true")]
+    True,
+    #[token("false")]
+    False,
+    #[token("nil")]
     Nil,
-    
-    EOF
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct Token {
-    pub(crate) token_type: TokenType,
-    pub(crate) lexeme: String,
-    pub(crate) position: Position
-}
-
-impl Token {
-    pub fn new(token_type: TokenType, lexeme: String, position: Position) -> Token {
-        Token {
-            token_type,
-            lexeme,
-            position
-        }
-    }
 }
