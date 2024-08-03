@@ -1,7 +1,13 @@
-use logos::Logos;
+use logos::{Logos, Span};
+
+#[derive(Debug, PartialEq)]
+pub struct Spanned<T> {
+    pub node: T,
+    pub span: Span,
+}
 
 #[derive(Logos, Debug, PartialEq)]
-#[logos(skip r"[ \t\n\f]+")] // Ignore this regex pattern between tokens
+#[logos(skip r"[ \t\n\f]+")]
 pub enum Token {
     #[token("if")]
     If,
@@ -19,7 +25,7 @@ pub enum Token {
     While,
     #[token("match")]
     Match,
-    
+
     #[token(":=")]
     Assign,
     #[token(":")]
@@ -60,12 +66,12 @@ pub enum Token {
     LessThanEqual,
     #[token(">=")]
     GreaterThanEqual,
-    
+
     #[regex("[a-zA-Z_][a-zA-Z0-9_]*", |lex| lex.slice().to_string())]
     Identifier(String),
     #[regex(r#""[^"]*"|'[^']*'"#, |lex| lex.slice().to_string())]
     StringLiteral(String),
-    #[regex(r#"(?:\d[\d_]*)(?:\.?(\d|_)*)"#, |lex| lex.slice().replace("_", "").parse::<f64>().unwrap())]
+    #[regex(r#"(?:\d[\d_]*)(?:\.?(\d|_)*)"#, |lex| lex.slice().replace("_", "").parse::<f64>().ok())]
     Number(f64),
     #[token("true")]
     True,
@@ -73,4 +79,13 @@ pub enum Token {
     False,
     #[token("nil")]
     Nil,
+    Error,
+}
+
+pub type SpannedToken = Spanned<Token>;
+
+impl SpannedToken {
+    pub fn new(token: Token, span: Span) -> Self {
+        SpannedToken { node: token, span }
+    }
 }
