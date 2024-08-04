@@ -1,12 +1,14 @@
+use std::hash::Hash;
 use logos::{Logos, Span};
+use std::fmt::Display;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Spanned<T> {
     pub node: T,
     pub span: Span,
 }
 
-#[derive(Logos, Debug, PartialEq)]
+#[derive(Logos, Debug, PartialEq, Clone)]
 #[logos(skip r"[ \t\n\f]+")]
 pub enum Token {
     #[token("if")]
@@ -80,6 +82,56 @@ pub enum Token {
     #[token("nil")]
     Nil,
     Error,
+}
+
+impl Display for Token {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Token::If => write!(f, "if"),
+            Token::Then => write!(f, "then"),
+            Token::Else => write!(f, "else"),
+            Token::And => write!(f, "and"),
+            Token::Or => write!(f, "or"),
+            Token::Not => write!(f, "not"),
+            Token::While => write!(f, "while"),
+            Token::Match => write!(f, "match"),
+            Token::Assign => write!(f, ":="),
+            Token::Colon => write!(f, ":"),
+            Token::Comma => write!(f, ","),
+            Token::Pipe => write!(f, "|"),
+            Token::LParen => write!(f, "("),
+            Token::RParen => write!(f, ")"),
+            Token::LBrace => write!(f, "{{"),
+            Token::RBrace => write!(f, "}}"),
+            Token::Dot => write!(f, "."),
+            Token::Plus => write!(f, "+"),
+            Token::Minus => write!(f, "-"),
+            Token::Star => write!(f, "*"),
+            Token::Slash => write!(f, "/"),
+            Token::Percent => write!(f, "%"),
+            Token::Equality => write!(f, "=="),
+            Token::NotEqual => write!(f, "!="),
+            Token::LessThan => write!(f, "<"),
+            Token::GreaterThan => write!(f, ">"),
+            Token::LessThanEqual => write!(f, "<="),
+            Token::GreaterThanEqual => write!(f, ">="),
+            Token::Identifier(name) => write!(f, "{}", name),
+            Token::StringLiteral(s) => write!(f, "{}", s),
+            Token::Number(n) => write!(f, "{}", n),
+            Token::True => write!(f, "true"),
+            Token::False => write!(f, "false"),
+            Token::Nil => write!(f, "nil"),
+            Token::Error => write!(f, "error"),
+        }
+    }
+}
+
+impl Eq for Token {}
+
+impl Hash for Token {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.to_string().hash(state);
+    }
 }
 
 pub type SpannedToken = Spanned<Token>;

@@ -1,5 +1,6 @@
 mod token;
-
+mod ast;
+mod parser;
 use logos::Logos;
 use token::Token;
 use crate::token::SpannedToken;
@@ -31,11 +32,7 @@ fn main() {
         })
         .collect();
 
-    for spanned_token in spanned_tokens {
-        match spanned_token.node {
-            Token::Identifier(name) => println!("Identifier '{}' at {:?}", name, spanned_token.span),
-            Token::Number(value) => println!("Number {} at {:?}", value, spanned_token.span),
-            _ => println!("Other token {:?} at {:?}", spanned_token.node, spanned_token.span),
-        }
-    }
+    let mut parser = parser::Parser::new(spanned_tokens.as_slice());
+    let expr = parser.parse();
+    println!("{:#?}", expr);
 }
