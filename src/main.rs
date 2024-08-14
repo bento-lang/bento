@@ -1,6 +1,10 @@
 mod token;
 mod ast;
 mod parser;
+mod eval;
+mod obj;
+mod profile;
+
 use logos::Logos;
 use token::Token;
 use crate::token::SpannedToken;
